@@ -95,7 +95,7 @@ def match(catalog_dict, linking_lengths=None,
           ra_label='ra', dec_label='dec',
           ra_unit='deg', dec_unit='deg',
           catalog_len_getter=len,
-          mpi=False, mpi_path='mpirun', graph_lib='networkx', num_threads=None,
+          mpi=False, mpi_path='mpirun', graph_lib='networkit', num_threads=None,
           nprocs=2, overlap=1.0, cache_root=os.getcwd(), sort=True,
           return_pandas=False, storekdtree=True, use_linked_mask=True, verbose=1,
           show_progress=True, silent=False, **tqdm_kwargs):
