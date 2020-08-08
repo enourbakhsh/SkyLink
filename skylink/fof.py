@@ -456,6 +456,7 @@ def fastmatch(coords=None, coords1=None, coords2=None,linking_length=None, perio
         This reduces the time to create a graph in strich_group_ids() but might have some amount of overhead
         (it can be negligible or a bit significant depending on the data) while making the mask through
         get_mosaics() and get_group_ids(). Experiment it with your data.
+    overlap: 1 should be enough to compensate for lost pairs that cross the boundaries (or maybe 1.01 just in case).
     '''
 
     # - define aliass for graph libraries names
