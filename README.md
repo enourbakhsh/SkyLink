@@ -1,7 +1,7 @@
 # SkyLink
 Code for efficiently matching sky catalogs.
 
-# Installations
+# Installation
 `SkyLink` can be installed as follows:
 ```
 pip install git+https://github.com/enourbakhsh/skylink
