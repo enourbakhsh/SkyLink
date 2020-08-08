@@ -19,4 +19,15 @@ setup(name='skylink',
           "colored", 
           "tqdm",
       ],
+      packages=[
+          "numpy",
+          "astropy",
+          "networkx", 
+          "networkit", 
+          "igraph", 
+          "pandas", #pandas>=0.25.3
+          "busypal @ git+https://github.com/enourbakhsh/busypal", 
+          "colored", 
+          "tqdm",
+      ],
       zip_safe=False)
