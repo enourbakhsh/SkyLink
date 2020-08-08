@@ -27,7 +27,8 @@ def assert_equal_tables(table1, table2):
 
 def assert_equal(obj1, obj2):
     '''
-    Tests whether two sky-matching objects are equal to each other
+    Tests whether two sky-matching objects are equal to each other - this
+    requires sorting them in a unique way first.
 
     obj1, obj2: pandas dataframes or astropy Tables, if any of them is a
                 path (string) to the corresponding pandas pickle,
