@@ -18,9 +18,9 @@ import datetime
 fof_path = inspect.getfile(fastmatch)
 
 """
- Note!
-This package uses the FoFCatalogMatching package as a benchmark to verify the results.
-That's why I adopted some codes and also the style of the outputs from the afformentioned package, at least for now.
+Note!
+This package can easily use the FoFCatalogMatching package as a benchmark to verify the results.
+That's why I adopted some codes and also the style of the outputs from the aforementioned package, at least for now.
 `linking_length` as a dictionary has not been tested yet! I do not recommend using it.
 """
 
