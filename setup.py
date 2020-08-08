@@ -1,4 +1,5 @@
 from setuptools import setup
+from skylink import __version__
 
 setup(name='skylink',
       version=__version__,
