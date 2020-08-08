@@ -1,5 +1,9 @@
+import os
 from setuptools import setup
-from .version import __version__
+
+package_name = 'skylink'
+lib_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), package_name)
+exec(open(os.path.join(lib_path, 'version.py')).read()) # it reads __version__
 
 setup(name='skylink',
       version=__version__,
@@ -20,15 +24,4 @@ setup(name='skylink',
           "colored", 
           "tqdm",
       ],
-#       packages=[
-#           "numpy",
-#           "astropy",
-#           "networkx", 
-#           "networkit", 
-#           "igraph", 
-#           "pandas", #pandas>=0.25.3
-#           "busypal @ git+https://github.com/enourbakhsh/busypal", 
-#           "colored", 
-#           "tqdm",
-#       ],
       zip_safe=False)
