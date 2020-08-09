@@ -318,7 +318,7 @@ def get_group_ids(coords=None, coords1=None,coords2=None, coords_idxshift=None, 
     del tqdm_kwargs['desc']
     if overidx is not None:
         overidx = set(overidx) # makes the lookups very fast!
-        for idx, cluster in enumerate(tqdm(clusters, total=nclusters, desc='Finding connected components of the'+'graphs and shared components' if parallel else 'graph', disable=disable_tqdm, **tqdm_kwargs)):
+        for idx, cluster in enumerate(tqdm(clusters, total=nclusters, desc='Finding connected components of the '+'graphs and shared components' if parallel else 'graph', disable=disable_tqdm, **tqdm_kwargs)):
             if any(gidx in overidx for gidx in cluster): # if any of the connected components has a foot on the overlap region that whole group should be involved in stitching later
                 # print('yes!')
                 linked_mask[cluster] = True
@@ -327,10 +327,10 @@ def get_group_ids(coords=None, coords1=None,coords2=None, coords_idxshift=None, 
             #     group_ids[galaxy_idx] = idx+coords_idxshift
         del clusters
         if verbose:
-            print('\r\r'+cl.stylize('✔', cl.fg('green')+cl.attr('bold'))+' Assigned group ids for each chunk by using connected components of the graphs' if parallel else 'by using connected components of the graph')
+            print('\r\r'+cl.stylize('✔', cl.fg('green')+cl.attr('bold'))+' Assigned group ids for each chunk by using connected components of the '+'graphs' if parallel else 'by using connected components of the graph')
         return group_ids, linked_mask
     else: # it might be parallel but it is not using linked_mask  
-        for idx, cluster in enumerate(tqdm(clusters, total=nclusters, desc='Finding connected components of the'+'graphs' if parallel else 'graph', disable=disable_tqdm, **tqdm_kwargs)):
+        for idx, cluster in enumerate(tqdm(clusters, total=nclusters, desc='Finding connected components of the '+'graphs' if parallel else 'graph', disable=disable_tqdm, **tqdm_kwargs)):
             group_ids[cluster] = idx+coords_idxshift
             # for galaxy_idx in cluster:
             #     group_ids[galaxy_idx] = idx+coords_idxshift
