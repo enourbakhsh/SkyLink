@@ -1,7 +1,7 @@
 # SkyLink
 Code for efficiently matching sky catalogs using KDTrees and graphs. This includes internal matching via friends-of-friends algorithm. Even in its serial mode, `SkyLink` performs faster than many other approaches I came across (e.g. the `FoFCatalogMatching` package hosted [here](https://github.com/yymao/FoFCatalogMatching)).
 # Example
-A minimal usage looks something like the following. This has been made simillar in use to the `FoFCatalogMatching` package to provide an effortless way to switch to this new package and speed up your matching codes.
+A minimal usage with three catalogs and multiple values for the linking length<sup>[1](#footnote1)</sup> looks something like the following. This has been made similar in use to the `FoFCatalogMatching` package to provide an effortless way to switch to this new package and speed up your matching codes.
 Note that the range of the sky coordinates in the parallel mode should allow for a gnomonic projection which will be used in mosaicking.
 
 ``` python
@@ -24,6 +24,7 @@ cat_c = Table({'ra': ra + normal(0, 0.0003, n),
 res = sl.match({'a': cat_a, 'b':cat_b, 'c':cat_c},
                {3.0: 3, 2.0: 3, 1: None}, nprocs = 8)
 ```
+<a name="footnote1"><sup>1</sup></a> *See [FoFCatalogMatching](https://github.com/yymao/FoFCatalogMatching)*
                
 # Installation
 `SkyLink` can be installed as follows:
