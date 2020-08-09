@@ -216,7 +216,7 @@ def match(catalog_dict, linking_lengths=None,
             _, group_id = np.unique(group_id, return_inverse=True)
             break
 
-        with BusyPal('Reassigning group ids with consecutive numbers', skip=skip_busypal, verbose=verbose):
+        with BusyPal('Reassigning group ids with consecutive numbers', fmt='{spinner} {message}', skip=skip_busypal, verbose=verbose):
             _, group_id, counts = np.unique(group_id, return_inverse=True, return_counts=True)
         group_id_shift = group_id.max() + 1
         regroup_mask = (counts[group_id] > max_count)
@@ -229,7 +229,7 @@ def match(catalog_dict, linking_lengths=None,
     stacked_catalog['group_id'] = group_id
     
     if sort:
-        with BusyPal('Sorting', skip=skip_busypal, verbose=verbose):
+        with BusyPal('Sorting', fmt='{spinner} {message}', skip=skip_busypal, verbose=verbose):
             stacked_catalog = stacked_catalog.group_by(['group_id','row_index'])
 
     if return_pandas:
