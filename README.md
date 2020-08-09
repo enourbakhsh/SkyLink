@@ -20,7 +20,7 @@ cat_b = Table({'ra': ra + normal(0, 0.0002, n),
 cat_c = Table({'ra': ra + normal(0, 0.0003, n),
                'dec': dec + normal(0, 0.0003, n)})
 
-# Run an fof match with 8 processors in parallel
+# Run an FoF match with 8 processors in parallel
 res = sl.match({'a': cat_a, 'b':cat_b, 'c':cat_c},
                {3.0: 3, 2.0: 3, 1: None}, nprocs = 8)
 ```
