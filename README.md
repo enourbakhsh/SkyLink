@@ -27,7 +27,7 @@ res = sl.match({'a': cat_a, 'b':cat_b, 'c':cat_c},
 <a name="footnote1"><sup>1</sup></a> *See [FoFCatalogMatching](https://github.com/yymao/FoFCatalogMatching)*
                
 ## Installation
-`SkyLink` can be installed as follows:
+The latest version of `SkyLink` can be installed as follows:
 ```
 pip install git+https://github.com/enourbakhsh/skylink
 ```
