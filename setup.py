@@ -19,7 +19,7 @@ setup(name=package_name,
           "astropy",
           "networkx", 
           "networkit", 
-          "igraph", 
+          "python-igraph", 
           "pandas", #pandas>=0.25.3
           "busypal @ git+https://github.com/enourbakhsh/busypal", 
           "colored", 
