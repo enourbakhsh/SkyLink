@@ -12,7 +12,8 @@ setup(name='skylink',
       author='Erfan Nourbakhsh',
       author_email='erfanyz@gmail.com',
       license='MIT',
-      packages=['skylink'],
+      packages=[package_name, package_name+'.astropy_search'],
+      package_data={"": ["*.rst"]}
       install_requires=[
           "numpy",
           "astropy",
