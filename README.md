@@ -37,7 +37,7 @@ For most users, all the dependencies will install automatically. However, some m
 
 `networkit` requires [CMake](https://cmake.org/install/) 3.5 or higher. Make sure you check this by running the command `cmake --version` in your terminal. 
 
-## Citing Skylink
+## Citing SkyLink
 You can cite `SkyLink` using the following BibTex reference format:
 
 ```
