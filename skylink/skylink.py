@@ -18,10 +18,12 @@ import datetime
 fof_path = inspect.getfile(fastmatch)
 
 """
-Note!
-This package can easily use the FoFCatalogMatching package as a benchmark to verify the results.
+Important notes!
+TODO: I still have some functions and lines of code in this python file shamelessly borrowed from
+FoFCatalogMatching since I wanted to be able to ingest the input catalogs exactly the same way that
+FoFCatalogMatching does and use it as a benchmark to verify the results.
 That's why I adopted some codes and also the style of the outputs from the aforementioned package, at least for now.
-`linking_length` as a dictionary has not been tested yet! I do not recommend using it.
+`linking_length` as a dictionary has not been fully tested but it outputs the results.
 """
 
 __all__ = ['match']
