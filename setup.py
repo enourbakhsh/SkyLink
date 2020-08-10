@@ -13,7 +13,7 @@ setup(name=package_name,
       author_email='erfanyz@gmail.com',
       license='MIT',
       packages=[package_name, package_name+'.astropy_search'],
-      package_data={"": ["*.rst"]}
+      package_data={"": ["*.rst"]},
       install_requires=[
           "numpy",
           "astropy",
