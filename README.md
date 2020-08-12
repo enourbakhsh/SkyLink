@@ -37,8 +37,7 @@ This package takes advantage of `f-strings` which were introduced with Python 3.
 
 Make sure you have an updated version of `setuptools` before installing `SkyLink`. A simple `pip install setuptools -U` does it for you.
 
-For most users, all the dependencies will install automatically. However, some might encounter issues with the `networkit` package. If you are one of those users, please follow the instructions here: https://github.com/networkit/networkit.
-
+For most users, all the dependencies will install automatically. However, some might encounter issues with the `networkit` package. If you are one of those users, please follow the instructions [here](https://github.com/networkit/networkit).
 `networkit` requires [CMake](https://cmake.org/install/) 3.5 or higher. Make sure you check this by running the command `cmake --version` in your terminal. 
 
 ## Citing SkyLink
