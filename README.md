@@ -33,6 +33,8 @@ pip install git+https://github.com/enourbakhsh/skylink
 ```
 
 ## Common Issues
+Make sure you have an updated version of `setuptools` before installing `SkyLink`. A simple `pip install setuptools -U` does it for you.
+
 For most users, all the dependencies will install automatically. However, some might encounter issues with the `networkit` package. If you are one of those users, please follow the instructions here: https://github.com/networkit/networkit.
 
 `networkit` requires [CMake](https://cmake.org/install/) 3.5 or higher. Make sure you check this by running the command `cmake --version` in your terminal. 
