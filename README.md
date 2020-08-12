@@ -33,6 +33,8 @@ pip install git+https://github.com/enourbakhsh/skylink
 ```
 
 ## Common Issues
+This package takes advantage of `f-strings` which were introduced with Python 3.6. In older python versions, an f-string will result in a syntax error.
+
 Make sure you have an updated version of `setuptools` before installing `SkyLink`. A simple `pip install setuptools -U` does it for you.
 
 For most users, all the dependencies will install automatically. However, some might encounter issues with the `networkit` package. If you are one of those users, please follow the instructions here: https://github.com/networkit/networkit.
