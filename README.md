@@ -32,7 +32,7 @@ The latest version of `SkyLink` can be installed as follows:
 pip install git+https://github.com/enourbakhsh/skylink
 ```
 
-## Common Issues
+## Common Installation Issues
 This package takes advantage of `f-strings` which were introduced with Python 3.6. In order python versions, an f-string will result in a syntax error.
 
 Make sure you have an updated version of `setuptools` before installing `SkyLink`. A simple `pip install setuptools -U` does it for you.
