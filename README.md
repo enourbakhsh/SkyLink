@@ -41,7 +41,7 @@ Make sure you have an updated version of `setuptools` before installing `SkyLink
 For most users, all the dependencies will install automatically. However, some might encounter issues with the `networkit` package. If you are one of those users, try `conda install networkit` and if that fails follow the instructions [here](https://github.com/networkit/networkit).
 `networkit` requires [CMake](https://cmake.org/install/) 3.5 or higher. Make sure you check this by running the command `cmake --version` in your terminal. 
 
-In case `pip` gives you a `gcc` error while installing `psutil`, try `conda install psutil` before installing `SkyLink` ([source](https://github.com/ray-project/ray/issues/1340)).
+In case `pip` gives you a `gcc` error while installing `psutil` in a `conda` environment, try `conda install psutil` before installing `SkyLink` ([source](https://github.com/ray-project/ray/issues/1340)).
 
 ## Citing SkyLink
 You can cite `SkyLink` using the following BibTex reference format:
