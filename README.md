@@ -31,14 +31,17 @@ The latest version of `SkyLink` can be installed as follows:
 ```
 pip install git+https://github.com/enourbakhsh/skylink
 ```
+I strongly recommend doing this in a conda environment.
 
 ## Common Installation Issues
 This package takes advantage of `f-strings` which were introduced with Python 3.6. In order python versions, an f-string will result in a syntax error.
 
 Make sure you have an updated version of `setuptools` before installing `SkyLink`. A simple `pip install setuptools -U` does it for you.
 
-For most users, all the dependencies will install automatically. However, some might encounter issues with the `networkit` package. If you are one of those users, please follow the instructions [here](https://github.com/networkit/networkit).
+For most users, all the dependencies will install automatically. However, some might encounter issues with the `networkit` package. If you are one of those users, try `conda install networkit` and if that fails follow the instructions [here](https://github.com/networkit/networkit).
 `networkit` requires [CMake](https://cmake.org/install/) 3.5 or higher. Make sure you check this by running the command `cmake --version` in your terminal. 
+
+In case `pip` gives you a `gcc` error while installing `psutil`, try `conda install psutil` before installing `SkyLink` ([source](https://github.com/ray-project/ray/issues/1340)).
 
 ## Citing SkyLink
 You can cite `SkyLink` using the following BibTex reference format:
