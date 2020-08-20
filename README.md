@@ -31,7 +31,7 @@ The latest version of `SkyLink` can be installed as follows:
 ```
 pip install git+https://github.com/enourbakhsh/skylink
 ```
-I strongly recommend doing this in a conda environment.
+I strongly recommend doing this in a conda virtual environment.
 
 ## Common Installation Issues
 This package takes advantage of `f-strings` which were introduced with Python 3.6. In older python versions, an f-string will result in a syntax error.
