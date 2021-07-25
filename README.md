@@ -46,10 +46,11 @@ In case `pip` gives you a `gcc` error while installing `psutil` in a `conda` env
 ## Citing SkyLink
 You can cite `SkyLink` using the following BibTex reference format:
 
-```
-@misc{Nourbakhsh2020,
+```bibtex
+@software{Nourbakhsh2020,
 title={A parallel Python code for efficiently matching sky catalogs using KDTrees and graphs},
 url={https://github.com/enourbakhsh/skylink},
 author={Erfan Nourbakhsh},
+version={1.0.0},
 year={2020}}
 ```
