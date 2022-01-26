@@ -1,5 +1,5 @@
 [![GitHub license](https://badgen.net/github/license/enourbakhsh/SkyLink)](https://github.com/enourbakhsh/SkyLink/blob/master/LICENSE)
-[![flake8](https://github.com/enourbakhsh/SkyLink/actions/workflows/flake8.yml/badge.svg)](https://github.com/enourbakhsh/SkyLink/actions/workflows/flake8.yml)
+[![flake8](https://github.com/enourbakhsh/SkyLink/actions/workflows/flake8.yml/badge.svg?branch=master)](https://github.com/enourbakhsh/SkyLink/actions/workflows/flake8.yml)
 [![pytest](https://github.com/enourbakhsh/SkyLink/actions/workflows/pytest.yml/badge.svg)](https://github.com/enourbakhsh/SkyLink/actions/workflows/pytest.yml)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/enourbakhsh/SkyLink/graphs/commit-activity)
 # SkyLink
