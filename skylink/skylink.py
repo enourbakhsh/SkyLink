@@ -1,6 +1,18 @@
+"""Skylink
+Code for efficiently matching sky catalogs using KDTrees and graphs. This
+includes internal matching via friends-of-friends algorithm.
+
+Notes
+-----
+(1) This package uses the `FoFCatalogMatching` package as a benchmark to verify
+the results. That's why I adopted some codes and also the style of the outputs
+from the aforementioned package.
+
+(2) `linking_length` as a dictionary (N-way matching) has not yet been tested!
 """
-SkyLink
-"""
+
+__all__ = ["match"]
+
 import numpy as np
 from astropy.table import Table, vstack
 from astropy.coordinates import SkyCoord
@@ -15,131 +27,221 @@ import inspect
 import time
 import colored as cl
 import datetime
+
 fof_path = inspect.getfile(fastmatch)
 
-"""
-Important notes!
-TODO: I still have some functions and lines of code in this python file shamelessly borrowed from
-FoFCatalogMatching since I wanted to be able to ingest the input catalogs exactly the same way that
-FoFCatalogMatching does and use it as a benchmark to verify the results.
-That's why I adopted some codes and also the style of the outputs from the aforementioned package, at least for now.
-TODO: do not allow users to use nprocs more than the number of their processors
-`linking_length` as a dictionary has not been fully tested but it outputs the results.
-"""
-
-__all__ = ['match']
-
-# MPI
+# MPI (experimental)
 # from mpi4py import MPI
-# # comm = MPI.COMM_WORLD
+# comm = MPI.COMM_WORLD
 # rank = comm.Get_rank()
 # nprocs = comm.Get_size()
-# comm = MPI.COMM_SELF.Spawn(sys.executable, args=[fof_path], maxprocs=8)
 
-# also https://www.endpoint.com/blog/2015/01/28/getting-realtime-output-using-python
-# modified from https://stackoverflow.com/questions/18421757/live-output-from-subprocess-command
-# to add stderr to stdout
 
-def _run_command(cmd,points,points_path,group_ids_path):
-    # - remove the old results just in case
+def _run_command(cmd, points, points_path, group_ids_path):
+    """Runs the comand to execute MPI
+
+    Parameters
+    ----------
+    cmd : str
+        MPI command
+    points : `~astropy.SkyCoord`
+        The stacked catalog obtained from all catalogs
+    points_path : str
+        The path to strore points in
+    group_ids_path : str
+        The path to store the grouped results in
+
+    Returns
+    -------
+    group_id: int array
+        An array of group ids
+
+    Raises
+    -------
+    RuntimeError
+        Raised if the process exited with code != 0
+    """
+
+    # Remove the old results just in case.
     if os.path.exists(group_ids_path):
         os.remove(group_ids_path)
-    with open(points_path, 'wb') as h:
+    with open(points_path, "wb") as h:
         pickle.dump(points, h)
-    process = subprocess.Popen(cmd, shell=True,
-                               stdin=subprocess.DEVNULL,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, bufsize=1,
-                               universal_newlines=True)
-    while True: #process.poll() is None: #.stdout.readable():
+    process = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=1,
+        universal_newlines=True,
+    )
+    while True:
         line = process.stdout.readline()
-        # if not line:
-        # print("\r\r" + str(line), end='')
-        # sys.stdout.flush()
-        # sys.stdout.write(f'{line}')  # and whatever you want to do...
-        # print(f'\r {line} \r', end='', flush=True)
-        #     time.sleep(1)
-        #     # break
-        # print(line.strip())
-        # line = line.replace('\n', '')
-        if '%|' in line: # tqdm line
-            print(f'\r{line.rstrip()}', end='', flush=True)
+        if "%|" in line:  # tqdm line
+            print(f"\r{line.rstrip()}", end="", flush=True)
         else:
-            print(f'{line.rstrip()}') #, end='\r', flush=True)
-        # if '100%|' in line:
-        #     print('\n')
+            print(f"{line.rstrip()}")
         if not line:  # EOF
             returncode = process.poll()
             if returncode is not None:
                 break
         sys.stdout.flush()
-        time.sleep(0.02)  # cmd closed stdout, but not exited yet
+        time.sleep(0.02)  # cmd closed the stdout, but not exited yet
 
     return_code = process.poll()
 
-    if return_code!=0:
-        raise RuntimeError(f"Something went wrong in '{fof_path}' with the return code {return_code}")
+    if return_code != 0:
+        raise RuntimeError(
+            f"Something went wrong in '{fof_path}' with the return code {return_code}"
+        )
 
     if os.path.exists(points_path):
         os.remove(points_path)
-    with open(group_ids_path, 'rb') as h:
+    with open(group_ids_path, "rb") as h:
         group_id = pickle.load(h)
     os.remove(group_ids_path)
     return group_id
 
+
 def _check_max_count(count):
+    """Checks if the input value is valid (either None or a positive >= 1
+    number.
+
+    Parameters
+    ----------
+    count : int
+        Input integer.
+
+    Returns
+    -------
+    count: int
+        Output integer. Returns the input integer if valid.
+
+    Raises
+    -------
+    ValueError
+        If `count` is not None or a positive number.
+
+    """
     if count is not None:
         count = int(count)
         if count < 1:
-            raise ValueError('`count` must be None or a positive integer.')
+            raise ValueError("`count` must be None or a positive integer.")
         return count
 
-def match(catalog_dict, linking_lengths=None,
-          ra_label='ra', dec_label='dec',
-          ra_unit='deg', dec_unit='deg',
-          catalog_len_getter=len,
-          mpi=False, mpi_path='mpirun', graph_lib='networkit', num_threads=None,
-          nprocs=2, overlap=1.0, cache_root=os.getcwd(), sort=True,
-          return_pandas=False, storekdtree=True, use_linked_mask=True, verbose=1,
-          show_progress=True, silent=False, **tqdm_kwargs):
 
-    """
-    Match multiple catalogs.
-    Ruturns an astropy Table that have group id and row id in each catalog.
+def match(
+    catalog_dict,
+    linking_lengths=None,
+    ra_label="ra",
+    dec_label="dec",
+    ra_unit="deg",
+    dec_unit="deg",
+    catalog_len_getter=len,
+    mpi=False,
+    mpi_path="mpirun",
+    graph_lib="igraph",
+    num_threads=None,
+    nprocs=2,
+    overlap=1.0,
+    cache_root=os.getcwd(),
+    sort=True,
+    return_pandas=False,
+    storekdtree=True,
+    use_linked_mask=True,
+    verbose=1,
+    show_progress=True,
+    silent=False,
+    **tqdm_kwargs,
+):
+    """Match astronomical sky catalogs. Made to be consistent with the
+    `FoFCatalogMatching` package.
 
     Parameters
     ----------
     catalog_dict : dict
         Catalogs to match.
-        In the format of {'cat_a': catalog_table_a, 'cat_b': catalog_table_b, }
-
+        In the format of {'cat_a': catalog_table_a, 'cat_b': catalog_table_b}
     linking_lengths : dict or float
         FoF linking length. Assuming the unit of arcsecond.
-        Can specify multiple values with the maximal allowed numbers in each group.
+        Can specify multiple values with the maximal allowed numbers in each
+        group.
         Use `None` to mean to constraint.
-        Example: {5.0: 5, 4.0: 5, 3.0: 4, 2.0: 3, 1.0: None}
-
+        Example: {5.0: 5, 4.0: 5, 3.0: 4, 1.0: None}
     ra_label : str, optional, default: 'ra'
+        The label for the ra column
     dec_label : str, optional, default: 'dec'
+        The label for the dec column
     ra_unit : str or astropy.units.Unit, optional, default: 'deg'
+        The unit of ra coordinates.
     dec_unit : str or astropy.units.Unit, optional, default: 'deg'
+        The unit of dec coordinates.
     catalog_len_getter : callable, optional, default: len
+        A callable that returns the length of the catalog.
+    mpi : bool, optional, default: False
+        Whether to use MPI for parallelization.
+    mpi_path : str, default: 'mpirun'
+        Path to the MPI executable
+    graph_lib : str, default: 'igraph'
+        The library used for the graph analysis. Options are `networkit`,
+        `igraph`, and `networkx`.
+    num_threads : int, optional, default: None
+        Number of OpenMP threads (only applies to the `networkit` library)
+    nprocs : int, optional, default: 2
+        Number of processors to use
+    overlap : float, optional, default: 1.0
+        The amount of overlaps for the mosaics in the unit of the FoF linking
+        length.
+    cache_root : str, optional, default: os.getcwd()
+        Root path to cache the stacked catalog
+    sort : bool, optional, default: True
+        Whether to sort the catalog at the end in terms of the group id and row
+        index.
+    return_pandas : bool, optional, default: False
+        Return the results as a pandas dataframe, otherwise an astropy table
+    storekdtree : bool or str, optional, default: True
+        An astropy parameter. If a string, will store the KD-Tree used in the
+        search with the name ``storekdtree`` in ``coords2.cache``.
+        This speeds up subsequent calls to this function. If False, the
+        KD-Trees are not saved.
+    use_linked_mask : bool, optional, default: True
+        If True, it generates a mask to be applied to the arrays from different
+        parallel processes before stitching them together. This reduces the
+        time to create a graph in ``stitch_group_ids()`` but might have some
+        minimal amount of overhead while making the mask through
+        ``get_mosaics()`` and ``get_group_ids()``.
+    verbose : bool or int, optional, default: True
+        If True or 1, it produces lots of logging output.
+    show_progress : bool or int, optional, default: True
+        Show ``tqdm`` progressbars.
+    silent : bool or int, optional, default: False
+        Run the code silently by suppressing the logging output and the
+        progressbar.
+    **tqdm_kwargs : dict
+        Additional keyword arguments passed to ``tqdm``.
 
     Returns
     -------
-    matched_catalog : astropy.table.Table
+    stacked_catalog: `astropy.table.Table`
+        A table containing group id and row id for each catalog.
     """
 
     t0 = datetime.datetime.now()
 
     if verbose:
-        if nprocs>1:
-            print(cl.stylize('✔', cl.fg('green')+cl.attr('bold'))+f' Running {nprocs} parallel jobs')
-        elif nprocs==1:
-            print(cl.stylize('✔', cl.fg('green')+cl.attr('bold'))+f' Running without parallelization')
+        if nprocs > 1:
+            print(
+                cl.stylize("✔", cl.fg("green") + cl.attr("bold"))
+                + f" Running {nprocs} parallel jobs"
+            )
+        elif nprocs == 1:
+            print(
+                cl.stylize("✔", cl.fg("green") + cl.attr("bold"))
+                + " Running without parallelization"
+            )
         else:
-            raise ValueError('illegal `nproc`')
-
+            raise ValueError("illegal `nproc`")
 
     if not show_progress:
         skip_busypal = 1
@@ -154,42 +256,52 @@ def match(catalog_dict, linking_lengths=None,
         # disable_tqdm = True
 
     if mpi:
-        if not cache_root=='' and not cache_root.endswith('/'):
-            cache_root += '/'
-        points_path = cache_root+'points.cache'
-        group_ids_path = cache_root+'group_ids.cache'
+        raise NotImplementedError(
+            "MPI is an experimental feature that has not yet been tested."
+        )
+        if not cache_root == "" and not cache_root.endswith("/"):
+            cache_root += "/"
+        points_path = cache_root + "points.cache"
+        group_ids_path = cache_root + "group_ids.cache"
 
     if isinstance(linking_lengths, dict):
-        linking_lengths = [(float(k), _check_max_count(linking_lengths[k])) \
-                for k in sorted(linking_lengths, key=float, reverse=True)]
+        linking_lengths = [
+            (float(k), _check_max_count(linking_lengths[k]))
+            for k in sorted(linking_lengths, key=float, reverse=True)
+        ]
     else:
         linking_lengths = [(float(linking_lengths), None)]
 
-    # WITH BUSYPAL('LOADING DATA  ....')
     xstacked_catalog = []
     for catalog_key, catalog in catalog_dict.items():
         if catalog is None:
             continue
 
         n_rows = catalog_len_getter(catalog)
-        xstacked_catalog.append(Table({
-            'ra': catalog[ra_label],
-            'dec': catalog[dec_label],
-            'row_index': np.arange(n_rows),
-            'catalog_key': np.repeat(catalog_key, n_rows),
-        }))
+        xstacked_catalog.append(
+            Table(
+                {
+                    "ra": catalog[ra_label],
+                    "dec": catalog[dec_label],
+                    "row_index": np.arange(n_rows),
+                    "catalog_key": np.repeat(catalog_key, n_rows),
+                }
+            )
+        )
 
     if not xstacked_catalog:
-        raise ValueError('No catalogs to merge!!')
+        raise ValueError("No catalogs to merge!")
 
-    stacked_catalog = vstack(xstacked_catalog, 'exact', 'error')
-    points = SkyCoord(stacked_catalog['ra'], stacked_catalog['dec'], unit=(ra_unit, dec_unit)) #.cartesian.xyz.value.T
+    stacked_catalog = vstack(xstacked_catalog, "exact", "error")
+    points = SkyCoord(
+        stacked_catalog["ra"], stacked_catalog["dec"], unit=(ra_unit, dec_unit)
+    )  # .cartesian.xyz.value.T
 
     # TODO: faster non-internal match i.e. when you don't need fof
-    coords1 = None #SkyCoord(xstacked_catalog[0]['ra'], xstacked_catalog[0]['dec'], unit=(ra_unit, dec_unit)) #.cartesian.xyz.value.T
-    coords2 = None #SkyCoord(xstacked_catalog[1]['ra'], xstacked_catalog[1]['dec'], unit=(ra_unit, dec_unit)) #.cartesian.xyz.value.T
-    
-    del stacked_catalog['ra'], stacked_catalog['dec']
+    coords1 = None
+    coords2 = None
+
+    del stacked_catalog["ra"], stacked_catalog["dec"]
 
     group_id = regroup_mask = group_id_shift = None
 
@@ -197,49 +309,95 @@ def match(catalog_dict, linking_lengths=None,
 
         if group_id is None:
             if mpi:
-                # cmd = [f'{mpi_path} -n {nprocs}', sys.executable, fof_path, f'--points_path={points_path}', f'--linking_length={d}', f'--group_ids_path={group_ids_path}', f'--tqdm_kwargs={tqdm_kwargs}'] # reassign_group_indices=False by default in fof's argparse, you can set the flag --reassign_group_indices to make it True
-                cmd = f'{mpi_path} -n {nprocs} {sys.executable} {fof_path} --points_path={points_path} --linking_length={linking_length_arcsec} --group_ids_path={group_ids_path} --tqdm_kwargs={tqdm_kwargs}' # reassign_group_indices=False by default in fof's argparse, you can set the flag --reassign_group_indices to make it True
-                # cmd = 'mpirun -n 4 /usr/local/anaconda3/bin/python /usr/local/anaconda3/lib/python3.7/site-packages/fast3tree/fof.py'
-                print(f'Running the command: {cmd}')
-                group_id = _run_command(cmd,points,points_path,group_ids_path)
+                cmd = f"{mpi_path} -n {nprocs} {sys.executable} {fof_path} --points_path={points_path} \
+                        --linking_length={linking_length_arcsec} --group_ids_path={group_ids_path} \
+                        --tqdm_kwargs={tqdm_kwargs}"
+                print(f"Running the command: {cmd}")
+                group_id = _run_command(cmd, points, points_path, group_ids_path)
             else:
-                # group_id = find_friends_of_friends(points=points, linking_length=d, reassign_group_indices=False, **tqdm_kwargs)
-                group_id = fastmatch(coords=points, coords1=coords1, coords2=coords2, linking_length=linking_length_arcsec, reassign_group_indices=False, graph_lib=graph_lib, num_threads=num_threads, storekdtree=storekdtree, use_linked_mask=use_linked_mask, njobs=nprocs, verbose=verbose, show_progress=show_progress, silent=silent, **tqdm_kwargs)
-                # print('gereftam!!!')
+                group_id = fastmatch(
+                    coords=points,
+                    coords1=coords1,
+                    coords2=coords2,
+                    linking_length=linking_length_arcsec,
+                    reassign_group_indices=False,
+                    graph_lib=graph_lib,
+                    num_threads=num_threads,
+                    storekdtree=storekdtree,
+                    use_linked_mask=use_linked_mask,
+                    njobs=nprocs,
+                    verbose=verbose,
+                    show_progress=show_progress,
+                    silent=silent,
+                    **tqdm_kwargs,
+                )
         else:
             if mpi:
-                cmd = [f'{mpi_path} -n {nprocs}', sys.executable, fof_path, f'--points_path={points_path}', f'--linking_length={linking_length_arcsec}', f'--group_ids_path={group_ids_path}', f'--tqdm_kwargs={tqdm_kwargs}'] # reassign_group_indices=False by default in fof's argparse, you can set the flag --reassign_group_indices to make it True
-                group_id = _run_command(cmd,points[regroup_mask],points_path,group_ids_path)
+                # if `reassign_group_indices=False` by default in fof.py's
+                # argparse, you can set the flag --reassign_group_indices to
+                # make it True.
+                cmd = [
+                    f"{mpi_path} -n {nprocs}",
+                    sys.executable,
+                    fof_path,
+                    f"--points_path={points_path}",
+                    f"--linking_length={linking_length_arcsec}",
+                    f"--group_ids_path={group_ids_path}",
+                    f"--tqdm_kwargs={tqdm_kwargs}",
+                ]
+                group_id = _run_command(
+                    cmd, points[regroup_mask], points_path, group_ids_path
+                )
             else:
-                group_id[regroup_mask] = fastmatch(points=points[regroup_mask], linking_length=linking_length_arcsec, reassign_group_indices=False)
-            
+                group_id[regroup_mask] = fastmatch(
+                    points=points[regroup_mask],
+                    linking_length=linking_length_arcsec,
+                    reassign_group_indices=False,
+                )
+
             group_id[regroup_mask] += group_id_shift
 
         if max_count is None:
             _, group_id = np.unique(group_id, return_inverse=True)
             break
 
-        with BusyPal('Reassigning group ids with consecutive numbers', fmt='{spinner} {message}', skip=skip_busypal, verbose=verbose):
-            _, group_id, counts = np.unique(group_id, return_inverse=True, return_counts=True)
+        with BusyPal(
+            "Reassigning group ids with consecutive numbers",
+            skip=skip_busypal,
+            verbose=verbose,
+        ):
+            _, group_id, counts = np.unique(
+                group_id, return_inverse=True, return_counts=True
+            )
         group_id_shift = group_id.max() + 1
-        regroup_mask = (counts[group_id] > max_count)
+        regroup_mask = counts[group_id] > max_count
         del counts
 
         if not regroup_mask.any():
             break
 
-    group_id = pd.factorize(group_id)[0] # very fast!
-    stacked_catalog['group_id'] = group_id
-    
+    group_id = pd.factorize(group_id)[0]  # very fast!
+    stacked_catalog["group_id"] = group_id
+
     if sort:
-        with BusyPal('Sorting', fmt='{spinner} {message}', skip=skip_busypal, verbose=verbose):
-            stacked_catalog = stacked_catalog.group_by(['group_id','row_index'])
+        with BusyPal("Sorting", skip=skip_busypal, verbose=verbose):
+            stacked_catalog = stacked_catalog.group_by(["group_id", "row_index"])
 
     if return_pandas:
         if verbose:
-            print(cl.stylize('✔ Success!', cl.fg('green')+cl.attr('bold'))+f' Took {str(datetime.timedelta(seconds=round((datetime.datetime.now()-t0).seconds)))} hms.')
+            elapsed_seconds = round((datetime.datetime.now() - t0).seconds)
+            print(
+                cl.stylize("✔ Success!", cl.fg("green") + cl.attr("bold"))
+                + f" Took {str(datetime.timedelta(seconds=elapsed_seconds))} hms."
+            )
         return stacked_catalog.to_pandas()
     else:
         if verbose:
-            print(cl.stylize(f'✔ Success! Took {str(datetime.timedelta(seconds=round((datetime.datetime.now()-t0).seconds)))} to execute.', cl.attr('bold')+cl.fg('green')))
+            elapsed_seconds = round((datetime.datetime.now() - t0).seconds)
+            print(
+                cl.stylize(
+                    f"✔ Success! Took {str(datetime.timedelta(seconds=elapsed_seconds))} to execute.",
+                    cl.attr("bold") + cl.fg("green"),
+                )
+            )
         return stacked_catalog
