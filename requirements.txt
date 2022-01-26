@@ -7,3 +7,4 @@ pandas
 busypal @ git+https://github.com/enourbakhsh/busypal
 colored
 tqdm
+FoFCatalogMatching
