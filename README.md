@@ -43,6 +43,17 @@ For most users, all the dependencies will install automatically. However, some m
 
 In case `pip` gives you a `gcc` error while installing `psutil` in a `conda` environment, try `conda install psutil` before installing `SkyLink` ([source](https://github.com/ray-project/ray/issues/1340)).
 
+## Testing with pytest
+In the root directory, you can run the unit tests available in the `tests` directory using the `pytest` command (assuming you have `pytest` installed):
+```bash
+pytest
+```
+
+While in the root directory, if you only want to check the code base against coding style (PEP8), programming errors and to check cyclomatic complexity, you can run this command (assuming you have `flake8` installed):
+```bash
+flake8 .
+```
+
 ## Citing SkyLink
 You can cite `SkyLink` using the following BibTex reference format:
 
