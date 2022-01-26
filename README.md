@@ -1,6 +1,6 @@
-[![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![GitHub license](https://badgen.net/github/license/enourbakhsh/SkyLink)](https://github.com/enourbakhsh/SkyLink/blob/master/LICENSE)
 [![Lint](https://github.com/enourbakhsh/SkyLink/actions/workflows/lint.yml/badge.svg)](https://github.com/enourbakhsh/SkyLink/actions/workflows/lint.yml)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/enourbakhsh/SkyLink/graphs/commit-activity)
 # SkyLink
 Code for efficiently matching sky catalogs using KDTrees and graphs. This includes internal matching via friends-of-friends algorithm. Even in its serial mode, `SkyLink` performs faster than many other approaches I came across (e.g. the `FoFCatalogMatching`+`fast3tree` packages hosted [here](https://github.com/yymao/FoFCatalogMatching) and [here](https://bitbucket.org/yymao/fast3tree), respectively).
 ## Example
