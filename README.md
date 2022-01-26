@@ -49,7 +49,7 @@ In case `pip` gives you a `gcc` error while installing `psutil` in a `conda` env
 ## Testing and maintainability
 In the root directory, you can run the unit tests available in the `tests` directory using the `pytest` command (assuming you have `pytest` installed):
 ```bash
-pytest
+pytest .
 ```
 
 While in the root directory, if you only want to check the code base against coding style (PEP8), programming errors and to check cyclomatic complexity, you can run this command (assuming you have `flake8` installed):
