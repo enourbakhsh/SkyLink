@@ -7,7 +7,7 @@ exec(open(os.path.join(lib_path, "version.py")).read())  # it reads __version__
 
 setup(
     name=package_name,
-    version=__version__,
+    version=__version__,  # noqa
     description="Using KDTree search and graphs to match sky catalogs.",
     url="https://github.com/skylink",
     author="Erfan Nourbakhsh",
