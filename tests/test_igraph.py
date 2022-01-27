@@ -8,7 +8,7 @@ import pytest  # noqa
 
 # TODO: test the matching with more than two catalogs
 # TODO: test N-way matching with `linking_lengths` as a dictionary
-# TODO: test if we successfully catch illegal footprints that are not gnomonic-projectable
+# TODO: test if we catch illegal footprints that are not gnomonic-projectable
 # TODO: test MPI implementation
 # TODO: test a wide range of linking lengths
 
