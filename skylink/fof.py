@@ -191,7 +191,7 @@ def radec2xy(
     ------
     ValueError
         If there are non-finite values in the projected coordinates or the
-        cellestial coordinates are not gnomic-projectable onto a plane.
+        cellestial coordinates are not gnomonic-projectable onto a plane.
     """
 
     # See https://github.com/astropy/astropy/issues/2847
@@ -234,7 +234,7 @@ def radec2xy(
         raise ValueError(
             "The projection led to all non-finite pixel coordinates, probably because it did not converge."
             "Make sure your ra and dec ranges are valid (0<ra<360 and -45<dec<45 in degrees) and"
-            "gnomic-projectable onto a plane."
+            "gnomonic-projectable onto a plane."
             "Also see https://docs.astropy.org/en/stable/_modules/astropy/wcs/wcs.html"
         )
 
