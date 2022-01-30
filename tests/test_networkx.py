@@ -12,7 +12,7 @@ import pytest  # noqa
 # TODO: test MPI implementation
 # TODO: test a wide range of linking lengths
 
-graph_lib = "networkit"
+graph_lib = "networkx"
 ncpus_max = os.cpu_count()  # maximum number of cpus
 linking_lengths_default = 0.75  # arcsec
 n = 2_000  # number of objects for the mock-up data
