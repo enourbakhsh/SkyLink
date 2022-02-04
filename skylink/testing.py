@@ -25,7 +25,7 @@ def standardize(df):
     ).reset_index(drop=True)
 
 
-def assert_equal_dfs(df1, df2, objtype="dataframes"):
+def assert_equal_dfs(df1, df2, objtype="dataframes", raise_error=True):
     """Tests whether two sky-matching pandas dataframes are equal.
 
     Parameters
@@ -41,21 +41,26 @@ def assert_equal_dfs(df1, df2, objtype="dataframes"):
     -------
     None
 
+    Raises
+    ------
+    RuntimeError
+        If the two dataframes are not equal.
+
     """
     ans = standardize(df1).equals(standardize(df2))
     if ans:
         print(
-            cl.stylize(f"✔ The {objtype} are equal!", cl.fg("green") + cl.attr("bold"))
+            cl.stylize(f"✔ The {objtype} are equal catalogs!", cl.fg("green") + cl.attr("bold"))
         )
     else:
-        print(
-            cl.stylize(
-                f"✘ The {objtype} are not equal!", cl.fg("red") + cl.attr("bold")
-            )
-        )
+        message = cl.stylize(f"✘ The {objtype} are not equal catalogs!", cl.fg("red") + cl.attr("bold"))
+        if raise_error:
+            raise RuntimeError(message)
+        else:
+            print(message)
 
 
-def assert_equal_tables(table1, table2):
+def assert_equal_tables(table1, table2, raise_error=True):
     """Tests whether two sky-matching astropy tables are equal.
 
     Parameters
@@ -69,13 +74,18 @@ def assert_equal_tables(table1, table2):
     -------
     None
 
+    Raises
+    ------
+    RuntimeError
+        If the two tables are not equal.
+
     """
     df1 = table1.to_pandas()
     df2 = table2.to_pandas()
-    assert_equal_dfs(df1, df2, objtype="Tables")
+    assert_equal_dfs(df1, df2, objtype="Tables", raise_error=raise_error)
 
 
-def assert_equal(obj1, obj2):
+def assert_equal(obj1, obj2, raise_error=True):
     """Tests whether two sky-matching objects are equal to each other.
 
     obj1, obj2: pandas dataframes or astropy Tables, if any of them is a
@@ -84,10 +94,12 @@ def assert_equal(obj1, obj2):
 
     Parameters
     ----------
-    obj1 : `~pandas.DataFrame` or `~astropy.table.Table`
-        The first table or dataframe.
-    obj2 : `~pandas.DataFrame` or `~astropy.table.Table`
-        The second table or dataframe.
+    obj1 : str or `~pandas.DataFrame` or `~astropy.table.Table`
+        The first table or dataframe. If a path (string) to the corresponding
+        pandas pickle is provided, it will read the dataframe from that pickle.
+    obj2 : str or `~pandas.DataFrame` or `~astropy.table.Table`
+        The second table or dataframe. If a path (string) to the corresponding
+        pandas pickle is provided, it will read the dataframe from that pickle.
 
     Returns
     -------
@@ -96,7 +108,11 @@ def assert_equal(obj1, obj2):
     Raises
     ------
     TypeError
-        If the two objects do not have the same type.
+        If the two objects do not have the same type or are not pandas
+        dataframes, paths to pandas dataframe pickles, or astropy Tables.
+
+    RuntimeError
+        If the two dataframes or tables are not equal.
 
     """
     if isinstance(obj1, str):
@@ -113,6 +129,10 @@ def assert_equal(obj1, obj2):
             "(or path to one or two pickles) or two astropy Tables"
         )
     if isinstance(obj1, pd.DataFrame):
-        assert_equal_dfs(obj1, obj2)
+        assert_equal_dfs(obj1, obj2, raise_error=raise_error)
     elif isinstance(obj1, astropy.table.Table):
-        assert_equal_tables(obj1, obj2)
+        assert_equal_tables(obj1, obj2, raise_error=raise_error)
+    else:
+        raise TypeError(
+            "The input files should be pandas dataframes (or path to one or two pickles) or astropy Tables"
+        )
