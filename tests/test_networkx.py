@@ -135,11 +135,24 @@ def test_linked_mask():
     testing.assert_equal(res_sl1, res_sl2)
 
 
+def run_with_order(cat_a, cat_b, reverse=False):
+    cats = {"b": cat_b, "a": cat_a} if reverse else {"a": cat_a, "b": cat_b}
+    return skylink.match(
+        cats,
+        linking_lengths=linking_lengths_default,
+        graph_lib=graph_lib,
+        nprocs=ncpus_max,
+        silent=True,
+        return_pandas=True,
+        use_linked_mask=False,
+    )
+
+
 def test_cat_orders():
     cat_a, cat_b = make_mockup()
     res_fcm = run_FoFCatalogMatching(cat_a, cat_b, return_pandas=True)
-    res_sl1 = run_with_overlap(cat_a, cat_b, 1.0)
-    res_sl2 = run_with_overlap(cat_b, cat_a, 1.0)
+    res_sl1 = run_with_order(cat_a, cat_b, False)
+    res_sl2 = run_with_order(cat_a, cat_b, True)
     testing.assert_equal(res_fcm, res_sl1)
     testing.assert_equal(res_sl1, res_sl2)
 
@@ -161,7 +174,7 @@ def test_sort():
     cat_a, cat_b = make_mockup()
     res_fcm = run_FoFCatalogMatching(cat_a, cat_b, return_pandas=True)
     res_sl1 = run_with_sort(cat_a, cat_b, True)
-    res_sl2 = run_with_sort(cat_b, cat_a, False)
+    res_sl2 = run_with_sort(cat_a, cat_b, False)
     testing.assert_equal(res_fcm, res_sl1)
     testing.assert_equal(res_sl1, res_sl2)
 
@@ -182,7 +195,7 @@ def run_with_storekdtree(cat_a, cat_b, storekdtree):
 def test_storekdtree():
     cat_a, cat_b = make_mockup()
     res_fcm = run_FoFCatalogMatching(cat_a, cat_b, return_pandas=True)
-    res_sl2 = run_with_storekdtree(cat_b, cat_a, False)
+    res_sl2 = run_with_storekdtree(cat_a, cat_b, False)
     res_sl1 = run_with_storekdtree(cat_a, cat_b, True)
     testing.assert_equal(res_fcm, res_sl1)
     testing.assert_equal(res_sl1, res_sl2)
